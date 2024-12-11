@@ -15,6 +15,14 @@ CORS(app)
 # create the jackson family object
 jackson_family = FamilyStructure("Jackson")
 
+new_member = jackson_family.add_member({
+            'name': 'John',
+            'age': 33,
+            'lucky_numbers': [7,13,22]
+        })
+
+
+
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
@@ -27,16 +35,25 @@ def sitemap():
 
 @app.route('/members', methods=['GET'])
 def handle_hello():
-
     # this is how you can use the Family datastructure by calling its methods
     members = jackson_family.get_all_members()
     response_body = {
-        "hello": "world",
-        "family": members
+        "members": members
     }
 
-
     return jsonify(response_body), 200
+
+@app.route('/members', methods=['POST'])
+def handle_add_member(): 
+    member = request.get_json()
+
+    if member is None: 
+        return 'Error body not empty', 400
+    if member['name'] is None: 
+        return 'Error name not empty', 400
+    
+    new_member = jackson_family.add_member(member)
+    return jsonify(new_member), 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
